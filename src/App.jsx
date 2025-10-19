@@ -1,37 +1,32 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
-import StudentDashboard from "./pages/StudentDashboard";
-import TeacherDashboard from "./pages/Teacher";
-import AdminDashboard from "./pages/Admin";
-import EmployeeDashboard from "./pages/Employee";
-import NotificationsDashboard from "./pages/NotificationsDashboard";
+import StudentLayout from "./pages/StudentLayout";
+import Dashboard from "./pages/Dashboard";
+import MyCourses from "./pages/MyCourses";
+import Schedule from "./pages/Schedule";
+import Payments from "./pages/Payments";
+import Documents from "./pages/Documents";
+import JobPlacement from "./pages/JobPlacement";
+import Messages from "./pages/Messages";
+import Support from "./pages/Support";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Login Page */}
         <Route path="/" element={<LoginPage />} />
-
-        {/* Dashboards */}
-        <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/teacher" element={<TeacherDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/employee" element={<EmployeeDashboard />} />
-
-        {/* Notifications */}
-        <Route path="/notifications" element={<NotificationsDashboard />} />
-
-        {/* Optional 404 */}
-        <Route
-          path="*"
-          element={
-            <h2 style={{ textAlign: "center", marginTop: "50px" }}>
-              404 - Page Not Found
-            </h2>
-          }
-        />
+        <Route path="/student" element={<StudentLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="courses" element={<MyCourses />} />
+          <Route path="schedule" element={<Schedule />} />
+          <Route path="payments" element={<Payments />} />
+          <Route path="documents" element={<Documents />} />
+          <Route path="jobs" element={<JobPlacement />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="support" element={<Support />} />
+        </Route>
+        <Route path="*" element={<h2>404 - Page Not Found</h2>} />
       </Routes>
     </Router>
   );
