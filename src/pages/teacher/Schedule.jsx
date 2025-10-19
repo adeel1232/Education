@@ -1,98 +1,45 @@
-import React from "react";
-import { FaCalendarAlt, FaClock, FaUsers, FaPlus } from "react-icons/fa";
-
-const upcomingClasses = [
-  {
-    name: "Class A CDL - Theory Session",
-    date: "Today",
-    time: "09:00 AM",
-    room: "Room 101",
-    students: 24,
-  },
-  {
-    name: "Behind-the-Wheel Training",
-    date: "Today",
-    time: "01:00 PM",
-    room: "Training Yard",
-    students: 8,
-  },
-  {
-    name: "Defensive Driving Workshop",
-    date: "Tomorrow",
-    time: "10:00 AM",
-    room: "Room 203",
-    students: 15,
-  },
-];
-
-const weeklySchedule = [
-  {
-    name: "Class A CDL - Theory Session",
-    date: "2025-01-20",
-    time: "09:00 - 12:00",
-    room: "Room 101",
-    students: 24,
-    status: "Scheduled",
-  },
-  {
-    name: "Behind-the-Wheel Training",
-    date: "2025-01-20",
-    time: "13:00 - 17:00",
-    room: "Training Yard",
-    students: 8,
-    status: "In Progress",
-  },
-  {
-    name: "Defensive Driving Workshop",
-    date: "2025-01-21",
-    time: "10:00 - 15:00",
-    room: "Room 203",
-    students: 15,
-    status: "Scheduled",
-  },
-  {
-    name: "CDL Exam Preparation",
-    date: "2025-01-22",
-    time: "14:00 - 16:00",
-    room: "Room 101",
-    students: 12,
-    status: "Scheduled",
-  },
-];
-
-const quickStats = {
-  classesThisWeek: 12,
-  totalStudents: 186,
-  hoursThisWeek: 32,
-  completionRate: "94%",
-};
+import React, { useState } from "react";
+import { FaCalendarAlt, FaClock, FaUsers, FaPlus, FaEye } from "react-icons/fa";
 
 const Schedule = () => {
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+
+  const classes = [
+    {
+      name: "Class A CDL - Theory Session",
+      date: "2025-01-20",
+      time: "09:00 - 12:00",
+      room: "Room 101",
+      students: 24,
+      instructor: "Mike Johnson",
+      contact: "(555) 123-4567",
+      status: "Scheduled",
+    },
+    {
+      name: "Behind-the-Wheel Training",
+      date: "2025-01-21",
+      time: "13:00 - 17:00",
+      room: "Training Yard",
+      students: 8,
+      instructor: "Sarah Clark",
+      contact: "(555) 987-6543",
+      status: "In Progress",
+    },
+  ];
+
   return (
     <div style={styles.container}>
       <h2>My Schedule</h2>
       <p>Manage your classes and training sessions</p>
 
-      <button style={styles.addSession}><FaPlus /> Add Session</button>
-
-      <section style={styles.section}>
-        <h3>Upcoming Classes</h3>
-        {upcomingClasses.map((cls, idx) => (
-          <div key={idx} style={styles.card}>
-            <div style={styles.cardHeader}>
-              <strong>{cls.name}</strong>
-              <span style={styles.status}>{cls.date} at {cls.time}</span>
-            </div>
-            <p><FaCalendarAlt /> {cls.room}</p>
-            <p><FaUsers /> {cls.students} students</p>
-            <button style={styles.startButton}>Start Class</button>
-          </div>
-        ))}
-      </section>
+      <button style={styles.addSession} onClick={() => setShowForm(true)}>
+        <FaPlus /> Add Session
+      </button>
 
       <section style={styles.section}>
         <h3>Weekly Schedule</h3>
-        {weeklySchedule.map((cls, idx) => (
+        {classes.map((cls, idx) => (
           <div key={idx} style={styles.card}>
             <div style={styles.cardHeader}>
               <strong>{cls.name}</strong>
@@ -102,20 +49,46 @@ const Schedule = () => {
             <p><FaClock /> {cls.time}</p>
             <p><FaUsers /> {cls.students} students</p>
             <p>Room: {cls.room}</p>
-            <button style={styles.editButton}>Edit</button>
+            <button style={styles.viewButton} onClick={() => setSelectedClass(cls)}>
+              <FaEye /> View Details
+            </button>
           </div>
         ))}
       </section>
 
-      <section style={styles.section}>
-        <h3>Quick Stats</h3>
-        <div style={styles.stats}>
-          <div style={styles.statCard}><strong>{quickStats.classesThisWeek}</strong><p>Classes This Week</p></div>
-          <div style={styles.statCard}><strong>{quickStats.totalStudents}</strong><p>Total Students</p></div>
-          <div style={styles.statCard}><strong>{quickStats.hoursThisWeek}</strong><p>Hours This Week</p></div>
-          <div style={styles.statCard}><strong>{quickStats.completionRate}</strong><p>Completion Rate</p></div>
+      {/* View Details Modal */}
+      {selectedClass && (
+        <div style={styles.modalOverlay} onClick={() => setSelectedClass(null)}>
+          <div style={styles.smallModal} onClick={(e) => e.stopPropagation()}>
+            <h3>{selectedClass.name}</h3>
+            <p><strong>Date:</strong> {selectedClass.date}</p>
+            <p><strong>Time:</strong> {selectedClass.time}</p>
+            <p><strong>Room:</strong> {selectedClass.room}</p>
+            <p><strong>Instructor:</strong> {selectedClass.instructor}</p>
+            <p><strong>Phone:</strong> {selectedClass.contact}</p>
+            <p><strong>Students:</strong> {selectedClass.students}</p>
+            <button style={styles.closeButton} onClick={() => setSelectedClass(null)}>Close</button>
+          </div>
         </div>
-      </section>
+      )}
+
+      {/* Add Session Form */}
+      {showForm && (
+        <div style={styles.modalOverlay} onClick={() => setShowForm(false)}>
+          <div style={styles.formModal} onClick={(e) => e.stopPropagation()}>
+            <h3>Add New Session</h3>
+            <form style={styles.form}>
+              <input type="text" placeholder="First Name" />
+              <input type="text" placeholder="Last Name" />
+              <input type="text" placeholder="Course Name" />
+              <input type="text" placeholder="Room" />
+              <input type="text" placeholder="Instructor" />
+              <input type="text" placeholder="Phone Number" />
+              <button type="submit" style={styles.submitButton}>Save</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -132,24 +105,6 @@ const styles = {
   },
   cardHeader: { display: "flex", justifyContent: "space-between", marginBottom: 8 },
   status: { fontWeight: 500, color: "#2563eb" },
-  startButton: {
-    marginTop: 8,
-    padding: "6px 12px",
-    background: "#2563eb",
-    color: "#fff",
-    border: "none",
-    borderRadius: 6,
-    cursor: "pointer",
-  },
-  editButton: {
-    marginTop: 8,
-    padding: "6px 12px",
-    background: "#f59e0b",
-    color: "#fff",
-    border: "none",
-    borderRadius: 6,
-    cursor: "pointer",
-  },
   addSession: {
     padding: "6px 12px",
     background: "#10b981",
@@ -162,17 +117,61 @@ const styles = {
     alignItems: "center",
     gap: 6,
   },
-  stats: { display: "flex", gap: 15, flexWrap: "wrap", marginTop: 10 },
-  statCard: {
-    flex: 1,
-    minWidth: 120,
+  viewButton: {
+    marginTop: 8,
+    padding: "5px 10px",
+    background: "#2563eb",
+    color: "#fff",
+    border: "none",
+    borderRadius: 6,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+  },
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(0,0,0,0.4)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  smallModal: {
     background: "#fff",
     padding: 15,
     borderRadius: 8,
-    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-    textAlign: "center",
+    width: "300px", // smaller width
+    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+  },
+  formModal: {
+    background: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "400px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+  },
+  form: { display: "flex", flexDirection: "column", gap: 10 },
+  submitButton: {
+    padding: "8px 12px",
+    background: "#10b981",
+    color: "#fff",
+    border: "none",
+    borderRadius: 6,
+    cursor: "pointer",
+  },
+  closeButton: {
+    marginTop: 10,
+    background: "#ef4444",
+    color: "#fff",
+    border: "none",
+    borderRadius: 6,
+    padding: "6px 10px",
+    cursor: "pointer",
   },
 };
 
 export default Schedule;
-

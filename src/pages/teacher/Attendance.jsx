@@ -1,114 +1,162 @@
-import React from "react";
-import { FaUserCheck, FaUserTimes, FaUserClock, FaCalendarAlt } from "react-icons/fa";
-
-const attendanceRecords = [
-  {
-    name: "John Smith",
-    course: "Class A CDL Theory",
-    date: "Jan 15, 2025",
-    time: "9:00 AM - 12:00 PM",
-    status: "Present",
-    note: "",
-  },
-  {
-    name: "Emily Davis",
-    course: "Behind-the-Wheel Training",
-    date: "Jan 15, 2025",
-    time: "1:00 PM - 4:00 PM",
-    status: "Absent",
-    note: "Called in sick",
-  },
-  {
-    name: "Michael Brown",
-    course: "Defensive Driving",
-    date: "Jan 15, 2025",
-    time: "10:00 AM - 2:00 PM",
-    status: "Late",
-    note: "Arrived 15 minutes late",
-  },
-  {
-    name: "Sarah Wilson",
-    course: "Class A CDL Theory",
-    date: "Jan 15, 2025",
-    time: "9:00 AM - 12:00 PM",
-    status: "Present",
-    note: "",
-  },
-];
-
-const statusIcons = {
-  Present: <FaUserCheck color="#10b981" />,
-  Absent: <FaUserTimes color="#ef4444" />,
-  Late: <FaUserClock color="#f59e0b" />,
-};
+import React, { useState } from "react";
+import { FaUserCheck, FaUserTimes, FaUserClock, FaCalendarAlt, FaEdit, FaPlus } from "react-icons/fa";
 
 const Attendance = () => {
+  const [records, setRecords] = useState([
+    { name: "John Smith", course: "Class A CDL Theory", date: "Jan 15, 2025", status: "Present" },
+    { name: "Emily Davis", course: "Behind-the-Wheel Training", date: "Jan 15, 2025", status: "Absent" },
+    { name: "Michael Brown", course: "Defensive Driving", date: "Jan 15, 2025", status: "Late" },
+  ]);
+
+  const [newStudent, setNewStudent] = useState({ name: "", course: "", date: "Jan 15, 2025", status: "Present" });
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editStudent, setEditStudent] = useState(null);
+
+  const statusIcons = {
+    Present: <FaUserCheck color="#10b981" />,
+    Absent: <FaUserTimes color="#ef4444" />,
+    Late: <FaUserClock color="#f59e0b" />,
+  };
+
+  const handleStatusChange = (index) => {
+    const statuses = ["Present", "Absent", "Late"];
+    setRecords((prev) =>
+      prev.map((rec, i) =>
+        i === index
+          ? { ...rec, status: statuses[(statuses.indexOf(rec.status) + 1) % statuses.length] }
+          : rec
+      )
+    );
+  };
+
+  const handleEdit = (index) => {
+    setEditingIndex(index);
+    setEditStudent({ ...records[index] });
+  };
+
+  const handleSaveEdit = () => {
+    setRecords((prev) =>
+      prev.map((rec, i) => (i === editingIndex ? editStudent : rec))
+    );
+    setEditingIndex(null);
+    setEditStudent(null);
+  };
+
+  const handleAddStudent = () => {
+    if (!newStudent.name.trim() || !newStudent.course.trim()) return alert("Enter name and course");
+    setRecords((prev) => [...prev, newStudent]);
+    setNewStudent({ name: "", course: "", date: "Jan 15, 2025", status: "Present" });
+  };
+
   return (
     <div style={styles.container}>
-      <h2>Attendance Tracking</h2>
-      <p>Record and manage student attendance for your classes</p>
+      <h2>Attendance Tracker</h2>
+      <p>Manage and record daily attendance</p>
 
-      <div style={styles.summary}>
-        <div style={styles.summaryCard}>
-          <h3>Today's Classes</h3>
-          <p>3</p>
-        </div>
-        <div style={styles.summaryCard}>
-          <h3>Total Students</h3>
-          <p>24</p>
-        </div>
-        <div style={styles.summaryCard}>
-          <h3>Attendance Rate</h3>
-          <p>92%</p>
-        </div>
+      {/* Add New Student */}
+      <div style={styles.addContainer}>
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={newStudent.name}
+          onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+          style={styles.input}
+        />
+        <input
+          type="text"
+          placeholder="Course"
+          value={newStudent.course}
+          onChange={(e) => setNewStudent({ ...newStudent, course: e.target.value })}
+          style={styles.input}
+        />
+        <button onClick={handleAddStudent} style={styles.addButton}>
+          <FaPlus /> Add
+        </button>
       </div>
 
-      <h3 style={{ marginTop: 20 }}>Recent Attendance Records</h3>
-      <div style={styles.records}>
-        {attendanceRecords.map((record, index) => (
-          <div key={index} style={styles.recordCard}>
-            <div style={styles.statusIcon}>{statusIcons[record.status]}</div>
+      {/* Attendance List */}
+      <div style={styles.list}>
+        {records.map((record, index) => (
+          <div key={index} style={styles.card}>
+            <div style={styles.icon} onClick={() => handleStatusChange(index)}>
+              {statusIcons[record.status]}
+            </div>
             <div style={styles.info}>
               <h4>{record.name}</h4>
               <p>{record.course}</p>
-              <p><FaCalendarAlt /> {record.date} • {record.time}</p>
-              {record.note && <p style={{ fontStyle: "italic", color: "#6b7280" }}>Note: {record.note}</p>}
+              <p style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <FaCalendarAlt /> {record.date}
+              </p>
+              <p>
+                Status: <strong>{record.status}</strong>
+              </p>
             </div>
-            <div>
-              <button style={styles.editButton}>Edit</button>
-            </div>
+            <button style={styles.editBtn} onClick={() => handleEdit(index)}>
+              <FaEdit /> Edit
+            </button>
           </div>
         ))}
       </div>
+
+      {/* Edit Modal */}
+      {editStudent && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modal}>
+            <h3>Edit Student</h3>
+            <input
+              type="text"
+              value={editStudent.name}
+              onChange={(e) => setEditStudent({ ...editStudent, name: e.target.value })}
+              style={styles.input}
+            />
+            <input
+              type="text"
+              value={editStudent.course}
+              onChange={(e) => setEditStudent({ ...editStudent, course: e.target.value })}
+              style={styles.input}
+            />
+            <select
+              value={editStudent.status}
+              onChange={(e) => setEditStudent({ ...editStudent, status: e.target.value })}
+              style={styles.input}
+            >
+              <option>Present</option>
+              <option>Absent</option>
+              <option>Late</option>
+            </select>
+            <div style={styles.modalButtons}>
+              <button onClick={handleSaveEdit} style={styles.saveBtn}>Save</button>
+              <button onClick={() => setEditStudent(null)} style={styles.cancelBtn}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 const styles = {
-  container: {
-    padding: 20,
-    fontFamily: "sans-serif",
+  container: { padding: 20, fontFamily: "sans-serif" },
+  addContainer: { display: "flex", gap: 10, marginTop: 15 },
+  input: {
+    padding: "8px 10px",
+    borderRadius: 6,
+    border: "1px solid #ccc",
+    fontSize: 14,
   },
-  summary: {
+  addButton: {
+    background: "#2563eb",
+    color: "#fff",
+    border: "none",
+    padding: "8px 14px",
+    borderRadius: 6,
+    cursor: "pointer",
     display: "flex",
-    gap: 20,
-    marginTop: 10,
+    alignItems: "center",
+    gap: 5,
   },
-  summaryCard: {
-    background: "#fff",
-    padding: 15,
-    borderRadius: 8,
-    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
-    flex: 1,
-    textAlign: "center",
-  },
-  records: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 12,
-    marginTop: 10,
-  },
-  recordCard: {
+  list: { marginTop: 20, display: "flex", flexDirection: "column", gap: 10 },
+  card: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -117,26 +165,51 @@ const styles = {
     borderRadius: 8,
     boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
   },
-  statusIcon: {
-    fontSize: 24,
-    marginRight: 15,
+  icon: { fontSize: 24, cursor: "pointer" },
+  info: { flex: 1, marginLeft: 10 },
+  editBtn: {
+    background: "#10b981",
+    color: "#fff",
+    border: "none",
+    padding: "8px 12px",
+    borderRadius: 6,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
   },
-  info: {
-    flex: 1,
+  modalOverlay: {
+    position: "fixed",
+    top: 0, left: 0, width: "100%", height: "100%",
+    background: "rgba(0,0,0,0.4)",
+    display: "flex", justifyContent: "center", alignItems: "center",
+  },
+  modal: {
+    background: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: 300,
     display: "flex",
     flexDirection: "column",
-    gap: 2,
+    gap: 10,
   },
-  editButton: {
+  modalButtons: { display: "flex", justifyContent: "space-between" },
+  saveBtn: {
     background: "#2563eb",
     color: "#fff",
     border: "none",
-    padding: "6px 10px",
+    padding: "8px 14px",
     borderRadius: 6,
     cursor: "pointer",
-    fontSize: 14,
+  },
+  cancelBtn: {
+    background: "#ef4444",
+    color: "#fff",
+    border: "none",
+    padding: "8px 14px",
+    borderRadius: 6,
+    cursor: "pointer",
   },
 };
 
 export default Attendance;
-

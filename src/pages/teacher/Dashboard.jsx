@@ -1,7 +1,76 @@
-import React from "react";
-import { FaChalkboardTeacher, FaClock, FaUsers, FaCalendarAlt, FaCheckCircle } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import {
+  FaChalkboardTeacher,
+  FaClock,
+  FaUsers,
+  FaCheckCircle,
+} from "react-icons/fa";
 
 const Dashboard = () => {
+  const [students, setStudents] = useState(0);
+  const [attendance, setAttendance] = useState(0);
+  const [activeClass, setActiveClass] = useState(null);
+  const [clockedIn, setClockedIn] = useState(false);
+  const [clockTime, setClockTime] = useState(0);
+
+  // Animate Assigned Students (0 → 30)
+  useEffect(() => {
+    let start = 0;
+    const end = 30;
+    const duration = 3000; // 3 sec
+    const increment = (end - start) / (duration / 50);
+    const interval = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        start = end;
+        clearInterval(interval);
+      }
+      setStudents(Math.floor(start));
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Animate Attendance Rate (0 → 95%)
+  useEffect(() => {
+    let start = 0;
+    const end = 95;
+    const duration = 10000; // 10 sec
+    const increment = (end - start) / (duration / 50);
+    const interval = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        start = end;
+        clearInterval(interval);
+      }
+      setAttendance(Math.floor(start));
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle Clock In/Out Timer
+  useEffect(() => {
+    let interval;
+    if (clockedIn) {
+      interval = setInterval(() => {
+        setClockTime((prev) => prev + 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [clockedIn]);
+
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h}h ${m}m ${s}s`;
+  };
+
+  const toggleClock = () => {
+    setClockedIn((prev) => !prev);
+  };
+
   return (
     <div style={styles.container}>
       <h2>Welcome back, Mary!</h2>
@@ -12,7 +81,7 @@ const Dashboard = () => {
         <div style={styles.card}>
           <FaUsers size={24} color="#2563eb" />
           <div>
-            <h3>24</h3>
+            <h3>{students}</h3>
             <p>Assigned Students</p>
           </div>
         </div>
@@ -37,7 +106,7 @@ const Dashboard = () => {
         <div style={styles.card}>
           <FaCheckCircle size={24} color="#2563eb" />
           <div>
-            <h3>94%</h3>
+            <h3>{attendance}%</h3>
             <p>Attendance Rate</p>
             <small>↑ 3% improvement</small>
           </div>
@@ -47,51 +116,55 @@ const Dashboard = () => {
       {/* Today's Classes */}
       <div style={styles.section}>
         <h3>Today's Classes</h3>
-        <div style={styles.classCard}>
-          <div>
-            <strong>Defensive Driving Theory</strong>
-            <p>9:00 AM - 12:00 PM</p>
-            <p>12 students • Room 101</p>
+        {[
+          {
+            title: "Defensive Driving Theory",
+            time: "9:00 AM - 12:00 PM",
+            students: "12 students • Room 101",
+          },
+          {
+            title: "Behind-the-Wheel Training",
+            time: "1:00 PM - 4:00 PM",
+            students: "4 students • Training Yard",
+          },
+        ].map((cls, i) => (
+          <div key={i} style={styles.classCard}>
+            <div>
+              <strong>{cls.title}</strong>
+              <p>{cls.time}</p>
+              <p>{cls.students}</p>
+              {activeClass === i && (
+                <p style={{ color: "#2563eb", marginTop: 5 }}>
+                  Class Details: Attendance tracking, materials ready, and
+                  student list loaded.
+                </p>
+              )}
+            </div>
+            <button
+              style={styles.button}
+              onClick={() =>
+                setActiveClass(activeClass === i ? null : i)
+              }
+            >
+              {activeClass === i ? "Close Details" : "Start Class"}
+            </button>
           </div>
-          <button style={styles.button}>Start Class</button>
-        </div>
-
-        <div style={styles.classCard}>
-          <div>
-            <strong>Behind-the-Wheel Training</strong>
-            <p>1:00 PM - 4:00 PM</p>
-            <p>4 students • Training Yard</p>
-          </div>
-          <button style={styles.button}>Start Class</button>
-        </div>
-      </div>
-
-      {/* Recent Student Activity */}
-      <div style={styles.section}>
-        <h3>Recent Student Activity</h3>
-        <ul style={styles.activityList}>
-          <li>
-            <strong>John Smith</strong> - Completed Pre-Trip Inspection module
-            <span>2 hours ago</span>
-          </li>
-          <li>
-            <strong>Emily Davis</strong> - Submitted Road Test assignment
-            <span>4 hours ago</span>
-          </li>
-          <li>
-            <strong>Michael Brown</strong> - Attended Air Brakes class
-            <span>Yesterday</span>
-          </li>
-        </ul>
+        ))}
       </div>
 
       {/* Clock In/Out */}
       <div style={styles.section}>
         <h3>Clock In/Out</h3>
         <div style={styles.clockCard}>
-          <p><strong>Clocked In</strong></p>
-          <p>Today's Hours: 5h 23m</p>
-          <button style={styles.button}>Clock Out</button>
+          <p>
+            <strong>{clockedIn ? "Clocked In" : "Clocked Out"}</strong>
+          </p>
+          <p>
+            Today's Hours: {clockedIn ? formatTime(clockTime) : formatTime(clockTime)}
+          </p>
+          <button style={styles.button} onClick={toggleClock}>
+            {clockedIn ? "Clock Out" : "Clock In"}
+          </button>
         </div>
       </div>
     </div>
@@ -139,11 +212,6 @@ const styles = {
     padding: "8px 12px",
     borderRadius: 6,
     cursor: "pointer",
-  },
-  activityList: {
-    listStyle: "none",
-    padding: 0,
-    marginTop: 10,
   },
   clockCard: {
     display: "flex",
