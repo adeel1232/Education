@@ -10,33 +10,12 @@ import {
   FaFileUpload,
   FaUserEdit,
 } from "react-icons/fa";
-import "./JobPlacement.css";
 
-function JobPlacement() {
+export default function JobPlacement() {
   const [search, setSearch] = useState("");
-
-  const myApplications = [
-    {
-      title: "Long Haul Truck Driver",
-      company: "TransAmerica Logistics",
-      date: "Jan 10, 2025",
-      status: "Under Review",
-    },
-    {
-      title: "Regional CDL Driver",
-      company: "Swift Transportation",
-      date: "Jan 8, 2025",
-      status: "Interview Scheduled",
-    },
-    {
-      title: "Class A CDL Driver",
-      company: "Freight Masters LLC",
-      date: "Jan 5, 2025",
-      status: "Rejected",
-    },
-  ];
-
-  const jobs = [
+  const [showApplyForm, setShowApplyForm] = useState(null); // index of job being applied
+  const [applicantInfo, setApplicantInfo] = useState({ firstName: "", lastName: "", description: "" });
+  const [jobs, setJobs] = useState([
     {
       title: "Class A CDL Driver",
       company: "ABC Transport Inc.",
@@ -61,31 +40,11 @@ function JobPlacement() {
       type: "Full-time",
       applied: "interview",
     },
-    {
-      title: "Local Delivery Driver",
-      company: "Quick Freight Services",
-      location: "San Antonio, TX",
-      salary: "$50,000 - $60,000/year",
-      type: "Full-time",
-      applied: false,
-    },
-    {
-      title: "Hazmat Certified Driver",
-      company: "Chemical Transport Co.",
-      location: "Houston, TX",
-      salary: "$75,000 - $90,000/year",
-      type: "Full-time",
-      applied: false,
-    },
-    {
-      title: "Team Driver Position",
-      company: "National Trucking Inc.",
-      location: "Dallas, TX",
-      salary: "$80,000 - $100,000/year",
-      type: "Full-time",
-      applied: false,
-    },
-  ];
+  ]);
+
+  const myApplications = jobs
+    .filter((job) => job.applied === true || job.applied === "interview")
+    .map((job) => ({ title: job.title, company: job.company, date: new Date().toLocaleDateString(), status: job.applied === true ? "Applied" : "Interview" }));
 
   const filteredJobs = jobs.filter(
     (job) =>
@@ -94,93 +53,117 @@ function JobPlacement() {
       job.location.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleApply = (index) => {
+    const updatedJobs = [...jobs];
+    updatedJobs[index].applied = true;
+    setJobs(updatedJobs);
+    setShowApplyForm(null);
+    setApplicantInfo({ firstName: "", lastName: "", description: "" });
+  };
+
+  const handleResumeUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) alert(`File "${file.name}" uploaded successfully!`);
+  };
+
+  const handleBuildResume = () => {
+    alert("Your PDF resume has been submitted!");
+  };
+
   return (
-    <div className="job-placement">
-      <header className="header">
-        <h1>
-          <FaSuitcase /> Job Placement
-        </h1>
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <header style={{ marginBottom: "20px" }}>
+        <h1><FaSuitcase /> Job Placement</h1>
         <p>Find CDL driver positions and track your applications</p>
       </header>
 
       {/* My Applications */}
-      <section className="applications-section">
+      <section>
         <h2>My Applications</h2>
-        <div className="applications-grid">
+        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           {myApplications.map((app, i) => (
-            <div key={i} className="app-card">
+            <div key={i} style={{ padding: "15px", background: "#f5f5f5", borderRadius: "5px", minWidth: "200px" }}>
               <h3>{app.title}</h3>
               <p>{app.company}</p>
-              <p>
-                <strong>Applied:</strong> {app.date}
-              </p>
-              <span className={`status ${app.status.replace(" ", "-").toLowerCase()}`}>
-                {app.status}
-              </span>
+              <p><strong>Applied:</strong> {app.date}</p>
+              <span style={{ fontWeight: "bold" }}>{app.status}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Job Search */}
-      <section className="job-search-section">
-        <div className="search-bar">
-          <FaSearch className="icon" />
-          <input
-            type="text"
-            placeholder="Search jobs by title, company, or location..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <button className="filter-btn">
-            <FaFilter /> Filters
-          </button>
-        </div>
+      {/* Search */}
+      <section style={{ margin: "20px 0" }}>
+        <input
+          type="text"
+          placeholder="Search jobs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ padding: "5px", width: "300px", marginRight: "10px" }}
+        />
+        <button><FaFilter /> Filters</button>
       </section>
 
       {/* Job Listings */}
-      <section className="available-jobs">
+      <section>
         <h2>Available Positions</h2>
-        <div className="job-list">
-          {filteredJobs.map((job, i) => (
-            <div key={i} className="job-card">
-              <div className="job-info">
-                <h3>{job.title}</h3>
-                <p>
-                  <FaBuilding /> {job.company}
-                </p>
-                <p>
-                  <FaMapMarkerAlt /> {job.location}
-                </p>
-                <p>
-                  <FaMoneyBillWave /> {job.salary}
-                </p>
-                <p>
-                  <FaClock /> {job.type}
-                </p>
-              </div>
-
-              {job.applied === true ? (
-                <button className="applied-btn">Applied</button>
-              ) : job.applied === "interview" ? (
-                <button className="interview-btn">Interview</button>
-              ) : (
-                <button className="apply-btn">Apply Now</button>
-              )}
+        {filteredJobs.map((job, index) => (
+          <div key={index} style={{ display: "flex", justifyContent: "space-between", padding: "15px", background: "#f5f5f5", marginBottom: "10px", borderRadius: "5px" }}>
+            <div>
+              <h3>{job.title}</h3>
+              <p><FaBuilding /> {job.company}</p>
+              <p><FaMapMarkerAlt /> {job.location}</p>
+              <p><FaMoneyBillWave /> {job.salary}</p>
+              <p><FaClock /> {job.type}</p>
             </div>
-          ))}
-        </div>
+            {job.applied === true ? (
+              <button disabled style={{ background: "#ff9800", color: "#fff", padding: "8px 12px" }}>Applied</button>
+            ) : job.applied === "interview" ? (
+              <button disabled style={{ background: "#2196f3", color: "#fff", padding: "8px 12px" }}>Interview</button>
+            ) : (
+              <button onClick={() => setShowApplyForm(index)} style={{ background: "#4caf50", color: "#fff", padding: "8px 12px" }}>Apply Now</button>
+            )}
+          </div>
+        ))}
       </section>
 
+      {/* Apply Form Modal */}
+      {showApplyForm !== null && (
+        <div style={modalOverlay}>
+          <div style={modalContent}>
+            <h3>Apply for {jobs[showApplyForm].title}</h3>
+            <input
+              placeholder="First Name"
+              value={applicantInfo.firstName}
+              onChange={(e) => setApplicantInfo({ ...applicantInfo, firstName: e.target.value })}
+            />
+            <input
+              placeholder="Last Name"
+              value={applicantInfo.lastName}
+              onChange={(e) => setApplicantInfo({ ...applicantInfo, lastName: e.target.value })}
+            />
+            <textarea
+              placeholder="Brief Description About Yourself"
+              value={applicantInfo.description}
+              onChange={(e) => setApplicantInfo({ ...applicantInfo, description: e.target.value })}
+            />
+            <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+              <button onClick={() => handleApply(showApplyForm)} style={{ background: "#4caf50", color: "#fff", padding: "8px 12px" }}>Submit Application</button>
+              <button onClick={() => setShowApplyForm(null)} style={{ background: "#f44336", color: "#fff", padding: "8px 12px" }}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Resume Section */}
-      <section className="resume-section">
+      <section style={{ marginTop: "20px" }}>
         <h2>Resume & Profile</h2>
-        <p>Keep your resume updated to increase your chances of getting hired</p>
-        <div className="resume-actions">
-          <button className="upload-btn">
+        <div style={{ display: "flex", gap: "10px" }}>
+          <label style={{ background: "#2196f3", color: "#fff", padding: "8px 12px", borderRadius: "5px", cursor: "pointer" }}>
             <FaFileUpload /> Upload Resume
-          </button>
-          <button className="build-btn">
+            <input type="file" style={{ display: "none" }} onChange={handleResumeUpload} />
+          </label>
+          <button onClick={handleBuildResume} style={{ background: "#4caf50", color: "#fff", padding: "8px 12px", borderRadius: "5px" }}>
             <FaUserEdit /> Build Resume
           </button>
         </div>
@@ -189,4 +172,22 @@ function JobPlacement() {
   );
 }
 
-export default JobPlacement;
+const modalOverlay = {
+  position: "fixed",
+  top: 0, left: 0, right: 0, bottom: 0,
+  background: "rgba(0,0,0,0.5)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 1000,
+};
+
+const modalContent = {
+  background: "#fff",
+  padding: "20px",
+  borderRadius: "10px",
+  width: "300px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+};

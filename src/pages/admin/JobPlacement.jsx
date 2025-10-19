@@ -1,184 +1,161 @@
-import React, { useState } from "react";
-import { FaBriefcase, FaFileUpload, FaUserEdit, FaSearch, FaFilter } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaEye, FaUserGraduate, FaBriefcase, FaFileAlt } from "react-icons/fa";
 
-const initialApplications = [
-  { title: "Long Haul Truck Driver", company: "TransAmerica Logistics", applied: "Jan 10, 2025", status: "Under Review" },
-  { title: "Regional CDL Driver", company: "Swift Transportation", applied: "Jan 8, 2025", status: "Interview Scheduled" },
-  { title: "Class A CDL Driver", company: "Freight Masters LLC", applied: "Jan 5, 2025", status: "Rejected" },
+const initialParticipants = [
+  { id: "STU-001", name: "John Smith", course: "Class A CDL", status: "Active" },
+  { id: "STU-002", name: "Emily Davis", course: "Defensive Driving", status: "Active" },
+  { id: "STU-003", name: "Michael Brown", course: "Hazmat Certification", status: "Completed" },
 ];
 
 const initialJobs = [
-  { title: "Class A CDL Driver", company: "ABC Transport Inc.", location: "Houston, TX", salary: "$65,000 - $75,000/year", type: "Full-time", status: "Open" },
-  { title: "Long Haul Truck Driver", company: "TransAmerica Logistics", location: "Dallas, TX", salary: "$70,000 - $85,000/year", type: "Full-time", status: "Applied" },
-  { title: "Regional CDL Driver", company: "Swift Transportation", location: "Austin, TX", salary: "$60,000 - $70,000/year", type: "Full-time", status: "Interview" },
-  { title: "Local Delivery Driver", company: "Quick Freight Services", location: "San Antonio, TX", salary: "$50,000 - $60,000/year", type: "Full-time", status: "Open" },
-  { title: "Hazmat Certified Driver", company: "Chemical Transport Co.", location: "Houston, TX", salary: "$75,000 - $90,000/year", type: "Full-time", status: "Open" },
-  { title: "Team Driver Position", company: "National Trucking Inc.", location: "Dallas, TX", salary: "$80,000 - $100,000/year", type: "Full-time", status: "Open" },
+  { id: "JOB-001", title: "Long Haul Truck Driver", company: "TransAmerica Logistics", status: "Open" },
+  { id: "JOB-002", title: "Regional CDL Driver", company: "Swift Transportation", status: "Open" },
 ];
 
-export default function JobPlacement() {
-  const [myApplications, setMyApplications] = useState(initialApplications);
-  const [availablePositions, setAvailablePositions] = useState(initialJobs);
-  const [showResumeModal, setShowResumeModal] = useState(false);
-  const [showBuildModal, setShowBuildModal] = useState(false);
+const initialApplications = [
+  { id: "APP-001", candidate: "John Smith", job: "Long Haul Truck Driver", date: "Oct 10, 2025", status: "Under Review" },
+  { id: "APP-002", candidate: "Emily Davis", job: "Regional CDL Driver", date: "Oct 12, 2025", status: "Interview Scheduled" },
+];
 
-  // Apply for job
-  const handleApply = (index) => {
-    const job = availablePositions[index];
-    if (job.status === "Open") {
-      const updatedJobs = [...availablePositions];
-      updatedJobs[index].status = "Applied";
-      setAvailablePositions(updatedJobs);
+export default function TrainingDashboard() {
+  const [participants, setParticipants] = useState(initialParticipants);
+  const [jobs, setJobs] = useState(initialJobs);
+  const [applications, setApplications] = useState(initialApplications);
+  const [viewItem, setViewItem] = useState(null);
 
-      const newApplication = {
-        title: job.title,
-        company: job.company,
-        applied: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-        status: "Under Review",
+  // Animated stats
+  const [counts, setCounts] = useState({ participants: 0, jobs: 0, applications: 0, investment: 0 });
+
+  useEffect(() => {
+    const duration = 30000; // 30 seconds
+    const intervalTime = 50; // update every 50ms
+    const steps = duration / intervalTime;
+    const increment = {
+      participants: 12 / steps,
+      jobs: 5 / steps,
+      applications: 48 / steps,
+      investment: 45000 / steps,
+    };
+    let current = { participants: 0, jobs: 0, applications: 0, investment: 0 };
+    const interval = setInterval(() => {
+      current = {
+        participants: Math.min(current.participants + increment.participants, 12),
+        jobs: Math.min(current.jobs + increment.jobs, 5),
+        applications: Math.min(current.applications + increment.applications, 48),
+        investment: Math.min(current.investment + increment.investment, 45000),
       };
-      setMyApplications([newApplication, ...myApplications]);
-    }
-  };
+      setCounts({ ...current });
+    }, intervalTime);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", background: "#f9f9f9", minHeight: "100vh" }}>
-      <h1 style={{ color: "#333" }}>Job Placement</h1>
-      <p style={{ color: "#555" }}>Find CDL driver positions and track your applications</p>
+      <h1>Training Dashboard</h1>
+      <p>Overview of training participants, applications, and investment</p>
 
-      {/* Search and Filters */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-        <button className="btn blue"><FaSearch /> Search Jobs</button>
-        <button className="btn orange"><FaFilter /> Filters</button>
+      {/* Stats */}
+      <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", marginBottom: "30px" }}>
+        <StatCard icon={<FaUserGraduate />} label="Employees in Training" value={Math.floor(counts.participants)} color="#4caf50" />
+        <StatCard icon={<FaBriefcase />} label="Active Job Postings" value={Math.floor(counts.jobs)} color="#2196f3" />
+        <StatCard icon={<FaFileAlt />} label="Total Applications" value={Math.floor(counts.applications)} extra="+23% this month" color="#ff9800" />
+        <StatCard icon={<FaDollarSign />} label="Training Investment" value={`$${Math.floor(counts.investment).toLocaleString()}`} color="#9c27b0" />
       </div>
 
-      {/* My Applications */}
-      <div style={{ marginBottom: "30px" }}>
-        <h3>My Applications</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {myApplications.map((app, i) => (
-            <div key={i} className="card">
-              <div>
-                <strong>{app.title}</strong> - {app.company}<br />
-                <small>Applied: {app.applied}</small>
-              </div>
-              <span className={`status ${app.status.replace(/\s/g, "").toLowerCase()}`}>
-                {app.status}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Participants Table */}
+      <Table title="Active Participants" data={participants} columns={["id", "name", "course", "status"]} onView={setViewItem} />
 
-      {/* Available Positions */}
-      <div style={{ marginBottom: "30px" }}>
-        <h3>Available Positions</h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-          {availablePositions.map((job, i) => (
-            <div key={i} className="card">
-              <div>
-                <strong>{job.title}</strong> - {job.company}<br />
-                <small>{job.location} | {job.salary} | {job.type}</small>
-              </div>
-              <button
-                className={`btn ${job.status === "Applied" ? "orange" : job.status === "Interview" ? "blue" : "green"}`}
-                onClick={() => handleApply(i)}
-              >
-                {job.status === "Open" ? "Apply Now" : job.status}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Jobs Table */}
+      <Table title="Active Job Postings" data={jobs} columns={["id", "title", "company", "status"]} onView={setViewItem} />
 
-      {/* Resume & Profile */}
-      <div>
-        <h3>Resume & Profile</h3>
-        <p>Keep your resume updated to increase your chances of getting hired</p>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button className="btn blue" onClick={() => setShowResumeModal(true)}><FaFileUpload /> Upload Resume</button>
-          <button className="btn green" onClick={() => setShowBuildModal(true)}><FaUserEdit /> Build Resume</button>
-        </div>
-      </div>
+      {/* Applications Table */}
+      <Table title="Total Applications" data={applications} columns={["id", "candidate", "job", "date", "status"]} onView={setViewItem} />
 
-      {/* Resume Modal */}
-      {showResumeModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Upload Resume</h3>
-            <input type="file" />
-            <button className="btn green" onClick={() => setShowResumeModal(false)}>Upload</button>
-            <button className="btn red" onClick={() => setShowResumeModal(false)}>Cancel</button>
+      {/* View Modal */}
+      {viewItem && (
+        <div style={modalOverlay}>
+          <div style={modalContent}>
+            <h3>Details</h3>
+            {Object.entries(viewItem).map(([key, val]) => (
+              <p key={key}><strong>{key}:</strong> {val}</p>
+            ))}
+            <button style={buttonStyle("#f44336")} onClick={() => setViewItem(null)}>Close</button>
           </div>
         </div>
       )}
-
-      {/* Build Resume Modal */}
-      {showBuildModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Build Resume</h3>
-            <p>Resume builder coming soon...</p>
-            <button className="btn red" onClick={() => setShowBuildModal(false)}>Close</button>
-          </div>
-        </div>
-      )}
-
-      {/* Styles */}
-      <style jsx>{`
-        .card {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 15px;
-          background: #fff;
-          border-radius: 8px;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-          transition: transform 0.2s;
-        }
-        .card:hover {
-          transform: translateY(-2px);
-        }
-        .btn {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          padding: 10px 15px;
-          border-radius: 5px;
-          border: none;
-          color: #fff;
-          font-weight: bold;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-        .btn.blue { background: #2196f3; }
-        .btn.orange { background: #ff9800; }
-        .btn.green { background: #4caf50; }
-        .btn.red { background: #f44336; }
-        .btn:hover { opacity: 0.85; }
-        .status {
-          font-weight: bold;
-        }
-        .status.underreview { color: #2196f3; }
-        .status.interviewscheduled { color: #ff9800; }
-        .status.rejected { color: #f44336; }
-        .modal {
-          position: fixed;
-          top:0; left:0; right:0; bottom:0;
-          background: rgba(0,0,0,0.5);
-          display:flex;
-          justify-content:center;
-          align-items:center;
-        }
-        .modal-content {
-          background:#fff;
-          padding:20px;
-          border-radius:10px;
-          display:flex;
-          flex-direction:column;
-          gap:10px;
-          min-width:300px;
-        }
-      `}</style>
     </div>
   );
 }
+
+// Components
+function StatCard({ icon, label, value, extra, color }) {
+  return (
+    <div style={{ flex: "1 1 200px", background: "#fff", padding: "20px", borderRadius: "10px", display: "flex", alignItems: "center", gap: "15px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)" }}>
+      <div style={{ fontSize: "32px", color }}>{icon}</div>
+      <div>
+        <h3 style={{ margin: 0 }}>{label}</h3>
+        <h2 style={{ margin: "5px 0" }}>{value}</h2>
+        {extra && <small style={{ color: "#555" }}>{extra}</small>}
+      </div>
+    </div>
+  );
+}
+
+function Table({ title, data, columns, onView }) {
+  return (
+    <div style={{ marginBottom: "30px" }}>
+      <h3>{title}</h3>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr style={{ background: "#e0e0e0", textAlign: "left" }}>
+            {columns.map(col => <th key={col} style={thTdStyle}>{col.toUpperCase()}</th>)}
+            <th style={thTdStyle}>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, i) => (
+            <tr key={i} style={{ borderBottom: "1px solid #ddd" }}>
+              {columns.map(col => <td key={col} style={thTdStyle}>{row[col]}</td>)}
+              <td style={thTdStyle}>
+                <button style={buttonStyle("#2196f3")} onClick={() => onView(row)}><FaEye /> View</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// Styles
+const thTdStyle = { padding: "10px" };
+const buttonStyle = (color) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: "5px",
+  padding: "5px 10px",
+  borderRadius: "5px",
+  border: "none",
+  background: color,
+  color: "#fff",
+  fontWeight: "bold",
+  cursor: "pointer"
+});
+const modalOverlay = {
+  position: "fixed",
+  top: 0, left: 0, right: 0, bottom: 0,
+  background: "rgba(0,0,0,0.5)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center"
+};
+const modalContent = {
+  background: "#fff",
+  padding: "20px",
+  borderRadius: "10px",
+  width: "400px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px"
+};
