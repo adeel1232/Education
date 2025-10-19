@@ -1,26 +1,69 @@
-import React from "react";
-import { FaUserGraduate, FaChalkboardTeacher, FaDollarSign, FaBriefcase, FaFileAlt, FaExclamationCircle } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import {
+  FaUserGraduate,
+  FaChalkboardTeacher,
+  FaDollarSign,
+  FaBriefcase,
+  FaFileAlt,
+  FaExclamationCircle,
+} from "react-icons/fa";
 
-const adminStats = [
+const initialAdminStats = [
   { name: "Total Students", value: 248, icon: <FaUserGraduate />, trend: "↑ 12% from last month" },
   { name: "Instructors", value: 18, icon: <FaChalkboardTeacher />, trend: "" },
-  { name: "Monthly Revenue", value: "$178K", icon: <FaDollarSign />, trend: "↑ 15% increase" },
+  { name: "Monthly Revenue", value: 178000, icon: <FaDollarSign />, trend: "↑ 15% increase" },
   { name: "Job Placements", value: 42, icon: <FaBriefcase />, trend: "↑ 8% increase" },
 ];
 
-const pendingDocs = [
-  { name: "John Smith", doc: "DOT Medical Card", time: "2 hours ago" },
-  { name: "Emily Davis", doc: "Driver's License", time: "5 hours ago" },
-  { name: "Michael Brown", doc: "Proof of Residency", time: "1 day ago" },
+const initialPendingDocs = [
+  { id: 1, name: "John Smith", doc: "DOT Medical Card", time: "2 hours ago", status: "Pending" },
+  { id: 2, name: "Emily Davis", doc: "Driver's License", time: "5 hours ago", status: "Pending" },
+  { id: 3, name: "Michael Brown", doc: "Proof of Residency", time: "1 day ago", status: "Pending" },
 ];
 
-const complianceAlerts = [
+const initialComplianceAlerts = [
   { title: "Expiring Medical Certificates", items: 8, deadline: "Within 30 days" },
   { title: "Missing Background Checks", items: 3, deadline: "Immediate" },
   { title: "License Renewals Due", items: 12, deadline: "Within 60 days" },
 ];
 
 export default function AdminDashboard() {
+  const [adminStats, setAdminStats] = useState(initialAdminStats.map(s => ({ ...s, animatedValue: 0 })));
+  const [pendingDocs, setPendingDocs] = useState(initialPendingDocs);
+  const [complianceAlerts, setComplianceAlerts] = useState(initialComplianceAlerts);
+
+  // Animate numbers (0 -> value)
+  useEffect(() => {
+    adminStats.forEach((stat, idx) => {
+      let start = 0;
+      const end = stat.value;
+      const duration = 20000; // 20 seconds
+      const stepTime = 50; // update every 50ms
+      const steps = duration / stepTime;
+      const increment = end / steps;
+
+      const timer = setInterval(() => {
+        start += increment;
+        setAdminStats(prev => {
+          const newStats = [...prev];
+          newStats[idx].animatedValue = start >= end ? end : Math.floor(start);
+          return newStats;
+        });
+      }, stepTime);
+
+      return () => clearInterval(timer);
+    });
+  }, []);
+
+  // Handle Approve/Reject
+  const handleDocAction = (id, action) => {
+    setPendingDocs(prev =>
+      prev.map(doc =>
+        doc.id === id ? { ...doc, status: action } : doc
+      )
+    );
+  };
+
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <h1>Admin Dashboard</h1>
@@ -42,7 +85,7 @@ export default function AdminDashboard() {
           }}>
             <div style={{ fontSize: "32px", marginBottom: "10px" }}>{stat.icon}</div>
             <h3>{stat.name}</h3>
-            <h2>{stat.value}</h2>
+            <h2>{stat.name === "Monthly Revenue" ? `$${stat.animatedValue.toLocaleString()}` : stat.animatedValue}</h2>
             <p style={{ color: "green", fontSize: "14px" }}>{stat.trend}</p>
           </div>
         ))}
@@ -73,15 +116,28 @@ export default function AdminDashboard() {
       <div style={{ marginTop: "40px" }}>
         <h3>Pending Document Approvals</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          {pendingDocs.map((doc, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "10px", background: "#f5f5f5", borderRadius: "5px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+          {pendingDocs.map((doc) => (
+            <div key={doc.id} style={{ display: "flex", justifyContent: "space-between", padding: "10px", background: "#f5f5f5", borderRadius: "5px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
               <div>
                 <strong>{doc.name}</strong> - {doc.doc} <br />
-                <small>{doc.time}</small>
+                <small>{doc.time}</small> <br />
+                <small>Status: {doc.status}</small>
               </div>
               <div>
-                <button style={{ marginRight: "10px", padding: "5px 10px", borderRadius: "5px", border: "none", background: "#4caf50", color: "#fff" }}>Approve</button>
-                <button style={{ padding: "5px 10px", borderRadius: "5px", border: "none", background: "#f44336", color: "#fff" }}>Reject</button>
+                <button
+                  onClick={() => handleDocAction(doc.id, "Approved")}
+                  style={{ marginRight: "10px", padding: "5px 10px", borderRadius: "5px", border: "none", background: "#4caf50", color: "#fff" }}
+                  disabled={doc.status === "Approved"}
+                >
+                  Approve
+                </button>
+                <button
+                  onClick={() => handleDocAction(doc.id, "Rejected")}
+                  style={{ padding: "5px 10px", borderRadius: "5px", border: "none", background: "#f44336", color: "#fff" }}
+                  disabled={doc.status === "Rejected"}
+                >
+                  Reject
+                </button>
               </div>
             </div>
           ))}
