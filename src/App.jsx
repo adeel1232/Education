@@ -4,11 +4,11 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // Login
 import LoginPage from "./components/LoginPage";
 
-// Layouts & Dashboards
+// Layouts
 import StudentLayout from "./pages/StudentLayout";
 import EmployerLayout from "./pages/EmployerLayout";
-import TeacherDashboard from "./pages/Teacher";
-import AdminLayout from "./pages/Admin"; // admin layout wrapper
+import AdminLayout from "./pages/Admin"; // wrapper for admin
+import TeacherLayout from "./pages/Teacher"; // wrapper for teacher
 import NotificationsDashboard from "./pages/NotificationsDashboard";
 
 // Student Pages
@@ -43,6 +43,16 @@ import AdminJobs from "./pages/admin/JobPlacement";
 import AdminAnalytics from "./pages/admin/Analytics";
 import AdminCompliance from "./pages/admin/Compliance";
 import AdminMessages from "./pages/admin/Messages";
+
+// Teacher Pages
+import TeacherDashboard from "./pages/teacher/Dashboard";
+import TeacherMyClasses from "./pages/teacher/MyClasses";
+import TeacherStudents from "./pages/teacher/Students";
+import TeacherAttendance from "./pages/teacher/Attendance";
+import TeacherSchedule from "./pages/teacher/Schedule";
+import TeacherClock from "./pages/teacher/Clock";
+import TeacherMessages from "./pages/teacher/Messages";
+import TeacherReports from "./pages/teacher/Reports";
 
 function App() {
   return (
@@ -90,8 +100,19 @@ function App() {
           <Route path="messages" element={<AdminMessages />} />
         </Route>
 
-        {/* Teacher / Notifications */}
-        <Route path="/teacher" element={<TeacherDashboard />} />
+        {/* Teacher Routes */}
+        <Route path="/teacher" element={<TeacherLayout />}>
+          <Route index element={<TeacherDashboard />} />
+          <Route path="classes" element={<TeacherMyClasses />} />
+          <Route path="students" element={<TeacherStudents />} />
+          <Route path="attendance" element={<TeacherAttendance />} />
+          <Route path="schedule" element={<TeacherSchedule />} />
+          <Route path="clock" element={<TeacherClock />} />
+          <Route path="messages" element={<TeacherMessages />} />
+          <Route path="reports" element={<TeacherReports />} />
+        </Route>
+
+        {/* Notifications */}
         <Route path="/notifications" element={<NotificationsDashboard />} />
 
         {/* 404 Page */}

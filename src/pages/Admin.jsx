@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { FaBars, FaUserCircle } from "react-icons/fa";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { FaBars, FaUserCircle, FaSearch, FaSignOutAlt } from "react-icons/fa";
 
 const navItems = [
   { name: "Dashboard", path: "/admin", icon: "📊" },
@@ -20,19 +20,33 @@ const navItems = [
 const Admin = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear session or token if needed
+    navigate("/");
+  };
 
   return (
     <div style={styles.container}>
       {/* Sidebar */}
       <aside style={{ ...styles.sidebar, width: sidebarOpen ? 240 : 70 }}>
         <div style={styles.logoArea}>
-          <h2 style={{ fontSize: sidebarOpen ? 18 : 0, transition: "0.3s" }}>
-            The Trucking Vault
-          </h2>
-          <p style={{ fontSize: sidebarOpen ? 12 : 0, transition: "0.3s" }}>
-            Admin Portal
-          </p>
+          <img
+            src="/abc.jpeg" // replace with your logo path
+            alt="The Trucking Vault"
+            style={{
+              width: sidebarOpen ? 50 : 40,
+              height: sidebarOpen ? 50 : 40,
+              borderRadius: "50%",
+              border: "2px solid #2563eb",
+              objectFit: "cover",
+              transition: "0.3s",
+            }}
+          />
+          {sidebarOpen && <p style={{ fontSize: 12, marginTop: 4 }}>Admin Portal</p>}
         </div>
+
         <nav>
           {navItems.map((item) => (
             <Link
@@ -51,17 +65,43 @@ const Admin = () => {
             </Link>
           ))}
         </nav>
+
+        {/* Logout Button */}
+        <div
+          style={{ ...styles.navItem, marginTop: "auto", cursor: "pointer", color: "#111827" }}
+          onClick={handleLogout}
+        >
+          <FaSignOutAlt style={{ marginRight: sidebarOpen ? 10 : 0 }} />
+          {sidebarOpen && "Logout"}
+        </div>
       </aside>
 
       {/* Main Content */}
       <div style={styles.main}>
         <header style={styles.header}>
-          <button
-            style={styles.toggle}
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-          >
-            <FaBars />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button style={styles.toggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
+              <FaBars />
+            </button>
+
+            <div style={styles.headerSearch}>
+              <FaSearch style={{ color: "#6b7280", marginRight: 8 }} />
+              <input
+                type="text"
+                placeholder="Search..."
+                style={{
+                  border: "none",
+                  outline: "none",
+                  background: "#f3f4f6",
+                  padding: "5px 8px",
+                  borderRadius: 8,
+                  width: sidebarOpen ? 200 : 120,
+                  transition: "0.3s",
+                }}
+              />
+            </div>
+          </div>
+
           <div style={styles.profile}>
             <div style={styles.avatar}>
               <FaUserCircle />
@@ -90,7 +130,7 @@ const styles = {
     display: "flex",
     height: "100vh",
     fontFamily: "sans-serif",
-    background: "#f9fafb",
+    background: "#f3f4f6",
   },
   sidebar: {
     background: "#ffffff",
@@ -102,16 +142,19 @@ const styles = {
     overflowY: "auto",
   },
   logoArea: {
-    marginBottom: "20px",
+    marginBottom: 20,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
     fontWeight: "700",
-    color: "#1e3a8a",
+    color: "#2563eb",
   },
   navItem: {
     display: "flex",
     alignItems: "center",
     padding: "10px 15px",
-    borderRadius: "8px",
-    marginBottom: "8px",
+    borderRadius: 8,
+    marginBottom: 8,
     textDecoration: "none",
     fontWeight: 500,
     transition: "0.2s",
@@ -132,13 +175,20 @@ const styles = {
   toggle: {
     border: "none",
     background: "none",
-    fontSize: "20px",
+    fontSize: 20,
     cursor: "pointer",
+  },
+  headerSearch: {
+    display: "flex",
+    alignItems: "center",
+    background: "#f3f4f6",
+    padding: "5px 10px",
+    borderRadius: 10,
   },
   profile: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
+    gap: 10,
   },
   avatar: {
     background: "#2563eb",
@@ -153,8 +203,9 @@ const styles = {
     fontSize: 20,
   },
   content: {
-    padding: "20px",
+    padding: 20,
     overflowY: "auto",
+    background: "#f3f4f6",
   },
 };
 

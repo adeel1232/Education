@@ -1,184 +1,203 @@
 import React, { useState } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  BarChart,
-  Bar,
-} from "recharts";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { FaBars, FaUserCircle, FaSearch, FaSignOutAlt } from "react-icons/fa";
 
-const TeacherDashboard = () => {
-  const [isClockedIn, setIsClockedIn] = useState(false);
-  const [hours, setHours] = useState(0);
+const navItems = [
+  { name: "Dashboard", path: "/teacher", icon: "📊" },
+  { name: "MyClasses", path: "/teacher/classes", icon: "📚" },
+  { name: "Students", path: "/teacher/students", icon: "👨‍🎓" },
+  { name: "Attendance", path: "/teacher/attendance", icon: "📝" },
+  { name: "Schedule", path: "/teacher/schedule", icon: "📅" },
+  { name: "Clock In/Out", path: "/teacher/clock", icon: "⏰" },
+  { name: "Messages", path: "/teacher/messages", icon: "✉️" },
+  { name: "Reports", path: "/teacher/reports", icon: "📈" },
+];
 
-  const handleClock = () => {
-    setIsClockedIn(!isClockedIn);
-    alert(isClockedIn ? "Clocked out!" : "Clocked in!");
-    if (!isClockedIn) setHours(hours + 1);
+const Teacher = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Clear session or auth here if needed
+    navigate("/");
   };
 
-  const students = [
-    { name: "Ali", feedback: "Excellent participation" },
-    { name: "Sara", feedback: "Needs improvement in math" },
-    { name: "Hassan", feedback: "Good behavior" },
-  ];
-
-  const schedule = [
-    { class: "Math", time: "10:00 AM" },
-    { class: "Science", time: "11:00 AM" },
-    { class: "English", time: "1:00 PM" },
-  ];
-
-  const hoursData = [
-    { day: "Mon", hours: 2 },
-    { day: "Tue", hours: 3 },
-    { day: "Wed", hours: 4 },
-    { day: "Thu", hours: 5 },
-    { day: "Fri", hours: 3 },
-  ];
-
-  const studentProgress = [
-    { student: "Ali", progress: 90 },
-    { student: "Sara", progress: 70 },
-    { student: "Hassan", progress: 85 },
-  ];
-
   return (
-    <div style={styles.page}>
-      <div style={styles.dashboard}>
-        <h1 style={styles.title}>Teacher Dashboard</h1>
-
-        {/* Top Row */}
-        <div style={styles.grid}>
-          <div style={styles.card}>
-            <h2 style={styles.cardTitle}>Clock In/Out</h2>
-            <p style={styles.text}>Total hours worked: {hours}</p>
-            <button style={styles.button} onClick={handleClock}>
-              {isClockedIn ? "Clock Out" : "Clock In"}
-            </button>
-          </div>
-
-          <div style={styles.card}>
-            <h2 style={styles.cardTitle}>Class Schedule</h2>
-            <ul style={{ paddingLeft: 18 }}>
-              {schedule.map((s, i) => (
-                <li key={i} style={styles.listItem}>
-                  <strong>{s.class}</strong> — {s.time}
-                </li>
-              ))}
-            </ul>
-          </div>
+    <div style={styles.container}>
+      {/* Sidebar */}
+      <aside style={{ ...styles.sidebar, width: sidebarOpen ? 240 : 70 }}>
+        <div style={styles.logoArea}>
+          <img
+            src="/abc.jpeg"
+            alt="The Trucking Vault"
+            style={{
+              width: sidebarOpen ? 50 : 40,
+              height: sidebarOpen ? 50 : 40,
+              borderRadius: "50%",
+              border: "2px solid #4f46e5",
+              objectFit: "cover",
+              transition: "0.3s",
+            }}
+          />
+          {sidebarOpen && <p style={{ fontSize: 12, marginTop: 4 }}>Teacher Portal</p>}
         </div>
 
-        {/* Students */}
-        <div style={styles.card}>
-          <h2 style={styles.cardTitle}>Assigned Students</h2>
-          {students.map((s, i) => (
-            <div key={i} style={styles.listItem}>
-              <strong>{s.name}</strong>: {s.feedback}
-            </div>
+        <nav>
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              to={item.path}
+              style={{
+                ...styles.navItem,
+                backgroundColor: location.pathname === item.path ? "#4f46e5" : "transparent",
+                color: location.pathname === item.path ? "#fff" : "#111827",
+              }}
+            >
+              <span style={{ marginRight: sidebarOpen ? 10 : 0 }}>{item.icon}</span>
+              {sidebarOpen && item.name}
+            </Link>
           ))}
-        </div>
+        </nav>
 
-        {/* Charts Row */}
-        <div style={styles.grid}>
-          <div style={styles.card}>
-            <h2 style={styles.cardTitle}>Weekly Hours</h2>
-            <LineChart width={420} height={250} data={hoursData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="hours"
-                stroke="#2563eb"
-                strokeWidth={3}
+        {/* Logout Button */}
+        <div
+          style={{ ...styles.navItem, marginTop: "auto", cursor: "pointer", color: "#111827" }}
+          onClick={handleLogout}
+        >
+          <FaSignOutAlt style={{ marginRight: sidebarOpen ? 10 : 0 }} />
+          {sidebarOpen && "Logout"}
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <div style={styles.main}>
+        <header style={styles.header}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button style={styles.toggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
+              <FaBars />
+            </button>
+            <div style={styles.headerSearch}>
+              <FaSearch style={{ color: "#6b7280", marginRight: 8 }} />
+              <input
+                type="text"
+                placeholder="Search..."
+                style={{
+                  border: "none",
+                  outline: "none",
+                  background: "#f3f4f6",
+                  padding: "5px 8px",
+                  borderRadius: 8,
+                  width: sidebarOpen ? 200 : 120,
+                  transition: "0.3s",
+                }}
               />
-            </LineChart>
+            </div>
           </div>
 
-          <div style={styles.card}>
-            <h2 style={styles.cardTitle}>Student Progress (%)</h2>
-            <BarChart width={420} height={250} data={studentProgress}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="student" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="progress" fill="#16a34a" />
-            </BarChart>
+          <div style={styles.profile}>
+            <div style={styles.avatar}>
+              <FaUserCircle />
+            </div>
+            {sidebarOpen && (
+              <div>
+                <strong>MJ</strong>
+                <p style={{ margin: 0, fontSize: 12, color: "#6b7280" }}>Mary Johnson</p>
+              </div>
+            )}
           </div>
-        </div>
+        </header>
+
+        <main style={styles.content}>
+          <Outlet />
+        </main>
       </div>
     </div>
   );
 };
 
-// Styles
 const styles = {
-  page: {
+  container: {
     display: "flex",
-    justifyContent: "center",
-    background: "linear-gradient(135deg, #eef2ff, #e0f2fe)",
-    minHeight: "100vh",
-    padding: "40px 20px",
-    fontFamily: "Inter, sans-serif",
+    height: "100vh",
+    fontFamily: "sans-serif",
+    background: "#f3f4f6",
   },
-  dashboard: {
-    backgroundColor: "#ffffff",
-    borderRadius: "16px",
-    padding: "40px",
-    width: "100%",
-    maxWidth: "1100px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+  sidebar: {
+    background: "#ffffff",
+    boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
+    display: "flex",
+    flexDirection: "column",
+    padding: "20px 10px",
+    transition: "0.3s",
+    overflowY: "auto",
   },
-  title: {
-    textAlign: "center",
-    color: "#1e40af",
-    fontSize: "32px",
-    marginBottom: "30px",
+  logoArea: {
+    marginBottom: 20,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
     fontWeight: "700",
+    color: "#4f46e5",
   },
-  card: {
-    backgroundColor: "#f9fafb",
-    padding: "25px",
-    borderRadius: "12px",
-    marginBottom: "20px",
-    boxShadow: "0 6px 12px rgba(0,0,0,0.05)",
+  navItem: {
+    display: "flex",
+    alignItems: "center",
+    padding: "10px 15px",
+    borderRadius: 8,
+    marginBottom: 8,
+    textDecoration: "none",
+    fontWeight: 500,
+    transition: "0.2s",
+  },
+  main: {
     flex: 1,
+    display: "flex",
+    flexDirection: "column",
   },
-  cardTitle: {
-    color: "#1e3a8a",
-    fontSize: "20px",
-    marginBottom: "10px",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-    gap: "20px",
-    marginBottom: "20px",
-  },
-  text: {
-    color: "#374151",
-    marginBottom: "10px",
-  },
-  button: {
+  header: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: "10px 20px",
-    backgroundColor: "#2563eb",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontWeight: "600",
-    transition: "background 0.3s",
+    background: "#ffffff",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
   },
-  listItem: {
-    marginBottom: "8px",
-    color: "#374151",
+  toggle: {
+    border: "none",
+    background: "none",
+    fontSize: 20,
+    cursor: "pointer",
+  },
+  headerSearch: {
+    display: "flex",
+    alignItems: "center",
+    background: "#f3f4f6",
+    padding: "5px 10px",
+    borderRadius: 10,
+  },
+  profile: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  avatar: {
+    background: "#4f46e5",
+    color: "#fff",
+    width: 40,
+    height: 40,
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: "bold",
+    fontSize: 20,
+  },
+  content: {
+    padding: 20,
+    overflowY: "auto",
+    background: "#f3f4f6",
   },
 };
 
-export default TeacherDashboard;
+export default Teacher;
