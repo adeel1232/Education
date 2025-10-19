@@ -14,7 +14,7 @@ const LoginPage = () => {
       student: { email: "student@example.com", password: "123456" },
       teacher: { email: "teacher@example.com", password: "123456" },
       admin: { email: "admin@example.com", password: "123456" },
-      employee: { email: "employee@example.com", password: "123456" },
+      employer: { email: "employer@example.com", password: "123456" },
     };
 
     if (email === users[role].email && password === users[role].password) {
@@ -53,7 +53,7 @@ const LoginPage = () => {
 
           {/* Role selection buttons */}
           <div style={styles.roleContainer}>
-            {["student", "teacher", "admin", "employee"].map((r) => (
+            {["student", "teacher", "admin", "employer"].map((r) => (
               <button
                 type="button"
                 key={r}
