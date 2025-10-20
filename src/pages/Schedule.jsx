@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Schedule = () => {
+  const [selectedClass, setSelectedClass] = useState(null);
+
   const upcomingClasses = [
     {
       title: "Defensive Driving Techniques",
@@ -45,7 +47,8 @@ const Schedule = () => {
       date: "Jan 20, 2025",
       time: "3:00 PM - 5:00 PM",
       location: "Virtual Meeting",
-      action: "Join Online",
+      link: "https://zoom.us/j/123456789",
+      action: "View Details",
     },
   ];
 
@@ -80,10 +83,6 @@ const Schedule = () => {
     transition: "transform 0.2s",
   };
 
-  const cardHover = {
-    transform: "translateY(-2px)",
-  };
-
   const buttonStyle = {
     padding: "8px 16px",
     borderRadius: 8,
@@ -92,7 +91,6 @@ const Schedule = () => {
     color: "#fff",
     cursor: "pointer",
     fontWeight: 500,
-    transition: "background 0.2s",
   };
 
   const statusBadge = (status) => ({
@@ -103,6 +101,27 @@ const Schedule = () => {
     fontWeight: 500,
     fontSize: 12,
   });
+
+  const detailModal = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  };
+
+  const modalBox = {
+    background: "#fff",
+    borderRadius: 12,
+    padding: 30,
+    width: "90%",
+    maxWidth: 500,
+    boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+  };
 
   return (
     <div style={{ padding: 20, fontFamily: "sans-serif" }}>
@@ -125,7 +144,9 @@ const Schedule = () => {
                 {cls.type} • {cls.instructor} • {cls.date} • {cls.time} • {cls.location}
               </p>
             </div>
-            <button style={buttonStyle}>{cls.action}</button>
+            <button style={buttonStyle} onClick={() => setSelectedClass(cls)}>
+              {cls.action}
+            </button>
           </div>
         ))}
       </section>
@@ -151,6 +172,65 @@ const Schedule = () => {
           </div>
         ))}
       </section>
+
+      {/* Modal for Details */}
+      {selectedClass && (
+        <div style={detailModal} onClick={() => setSelectedClass(null)}>
+          <div style={modalBox} onClick={(e) => e.stopPropagation()}>
+            <h2>{selectedClass.title}</h2>
+            <p>
+              <strong>Type:</strong> {selectedClass.type}
+            </p>
+            <p>
+              <strong>Instructor:</strong> {selectedClass.instructor}
+            </p>
+            <p>
+              <strong>Date:</strong> {selectedClass.date}
+            </p>
+            <p>
+              <strong>Time:</strong> {selectedClass.time}
+            </p>
+            <p>
+              <strong>Location:</strong> {selectedClass.location}
+            </p>
+
+            {selectedClass.type === "Online" && selectedClass.link ? (
+              <a
+                href={selectedClass.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  ...buttonStyle,
+                  display: "inline-block",
+                  textDecoration: "none",
+                  backgroundColor: "#10b981",
+                  marginRight: 10,
+                }}
+              >
+                Join Class
+              </a>
+            ) : (
+              <button
+                style={{
+                  ...buttonStyle,
+                  backgroundColor: "#10b981",
+                  marginRight: 10,
+                }}
+                onClick={() => alert("Marked as Attended!")}
+              >
+                Attend
+              </button>
+            )}
+
+            <button
+              style={{ ...buttonStyle, backgroundColor: "#ef4444" }}
+              onClick={() => setSelectedClass(null)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

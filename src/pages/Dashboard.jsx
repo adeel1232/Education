@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -27,6 +27,46 @@ const attendanceData = [
 ];
 
 const Dashboard = () => {
+  const [attendanceRate, setAttendanceRate] = useState(0);
+  const targetRate = 98;
+
+  // Animate attendance count up to 98%
+  useEffect(() => {
+    let start = 0;
+    const duration = 30000; // 30 seconds
+    const stepTime = 50; // ms per update
+    const increment = (targetRate / (duration / stepTime));
+
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= targetRate) {
+        start = targetRate;
+        clearInterval(timer);
+      }
+      setAttendanceRate(Math.floor(start));
+    }, stepTime);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const [student, setStudent] = useState({
+    name: "",
+    className: "",
+    classroom: "",
+    dob: "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setStudent({ ...student, [name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert(`Student Added:\nName: ${student.name}\nClass: ${student.className}\nClassroom: ${student.classroom}\nDOB: ${student.dob}`);
+    setStudent({ name: "", className: "", classroom: "", dob: "" });
+  };
+
   return (
     <div style={{ padding: 20 }}>
       <h1>Welcome back, John!</h1>
@@ -52,7 +92,9 @@ const Dashboard = () => {
         </div>
         <div style={cardStyle}>
           <h3>Attendance Rate</h3>
-          <p style={{ fontSize: 24, fontWeight: "bold" }}>98%</p>
+          <p style={{ fontSize: 24, fontWeight: "bold", transition: "0.3s" }}>
+            {attendanceRate}%
+          </p>
           <p>23 of 24 classes attended</p>
           <p>↑ 100% this month</p>
         </div>
@@ -90,70 +132,47 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Current Courses */}
+      {/* Student Add Form */}
       <div style={{ marginTop: 40 }}>
-        <h2>Current Courses</h2>
-        <ul>
-          <li>
-            <strong>Class A CDL Theory</strong> - In Progress, 85% Complete,
-            17/20 lessons
-          </li>
-          <li>
-            <strong>Behind-the-Wheel Training</strong> - In Progress, 60%
-            Complete, 18/30 hours
-          </li>
-        </ul>
-      </div>
-
-      {/* Upcoming Classes */}
-      <div style={{ marginTop: 40 }}>
-        <h2>Upcoming Classes</h2>
-        <ul>
-          <li>
-            <strong>Defensive Driving Techniques (Theory)</strong> - Mike
-            Johnson, Tomorrow, 9:00 AM - 12:00 PM, Room 101
-          </li>
-          <li>
-            <strong>Road Test Preparation (Practical)</strong> - Sarah
-            Williams, Jan 17, 1:00 PM - 4:00 PM, Training Yard
-          </li>
-        </ul>
-      </div>
-
-      {/* Payment Overview */}
-      <div style={{ marginTop: 40 }}>
-        <h2>Payment Overview</h2>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr>
-              <th style={thStyle}>Invoice</th>
-              <th style={thStyle}>Status</th>
-              <th style={thStyle}>Amount</th>
-              <th style={thStyle}>Due Date</th>
-              <th style={thStyle}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style={tdStyle}>INV-2024-001</td>
-              <td style={tdStyle}>Pending</td>
-              <td style={tdStyle}>$2,500</td>
-              <td style={tdStyle}>Jan 15, 2025</td>
-              <td style={tdStyle}>
-                <button>Pay Now</button>
-              </td>
-            </tr>
-            <tr>
-              <td style={tdStyle}>INV-2024-002</td>
-              <td style={tdStyle}>Paid</td>
-              <td style={tdStyle}>$2,500</td>
-              <td style={tdStyle}>Dec 15, 2024</td>
-              <td style={tdStyle}>
-                <button>Download Receipt</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <h2>Add New Student</h2>
+        <form onSubmit={handleSubmit} style={{ display: "grid", gap: 10, maxWidth: 400 }}>
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            value={student.name}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+          />
+          <input
+            type="text"
+            name="className"
+            placeholder="Class"
+            value={student.className}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+          />
+          <input
+            type="text"
+            name="classroom"
+            placeholder="Classroom"
+            value={student.classroom}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+          />
+          <input
+            type="date"
+            name="dob"
+            value={student.dob}
+            onChange={handleChange}
+            required
+            style={inputStyle}
+          />
+          <button type="submit" style={buttonStyle}>Add Student</button>
+        </form>
       </div>
     </div>
   );
@@ -175,15 +194,21 @@ const graphCardStyle = {
   boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
 };
 
-const thStyle = {
-  borderBottom: "1px solid #ddd",
+const inputStyle = {
   padding: 10,
-  textAlign: "left",
+  borderRadius: 5,
+  border: "1px solid #ccc",
+  fontSize: 16,
 };
 
-const tdStyle = {
-  borderBottom: "1px solid #ddd",
-  padding: 10,
+const buttonStyle = {
+  padding: "10px 20px",
+  background: "#2563eb",
+  color: "#fff",
+  border: "none",
+  borderRadius: 5,
+  cursor: "pointer",
+  fontSize: 16,
 };
 
 export default Dashboard;

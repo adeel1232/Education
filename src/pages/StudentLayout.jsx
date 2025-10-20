@@ -7,6 +7,16 @@ const StudentLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const navColors = [
+    "#2563eb", // blue
+    "#10b981", // green
+    "#f59e0b", // yellow
+    "#ef4444", // red
+    "#8b5cf6", // purple
+    "#ec4899", // pink
+    "#14b8a6", // teal
+  ];
+
   const navItems = [
     { name: "Dashboard", path: "/student", icon: "🏠" },
     { name: "My Courses", path: "/student/courses", icon: "📚" },
@@ -19,7 +29,7 @@ const StudentLayout = () => {
   ];
 
   const handleLogout = () => {
-    navigate("/"); // redirect to login
+    navigate("/");
   };
 
   return (
@@ -27,50 +37,50 @@ const StudentLayout = () => {
       style={{
         display: "flex",
         height: "100vh",
-        fontFamily: "sans-serif",
-        background: darkMode ? "#1f2937" : "#f9fafb",
+        fontFamily: "Segoe UI, sans-serif",
+        background: darkMode ? "#111827" : "#f3f4f6",
         color: darkMode ? "#f9fafb" : "#111827",
+        transition: "all 0.3s ease",
       }}
     >
       {/* Sidebar */}
       <aside
         style={{
-          background: darkMode ? "#111827" : "#fff",
-          width: sidebarOpen ? 220 : 70,
-          transition: "0.3s",
-          padding: "20px 10px",
+          background: darkMode ? "#1f2937" : "#fff",
+          width: sidebarOpen ? 230 : 75,
+          transition: "0.3s ease",
+          boxShadow: "2px 0 10px rgba(0,0,0,0.1)",
           position: "fixed",
-          height: "100vh",
-          overflowY: "auto",
-          boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
+          height: "100%",
+          padding: "20px 10px",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
         }}
       >
         {/* Logo */}
-       <div style={{ marginBottom: 20 }}>
-  <img
-    src="/abc.jpeg"
-    alt="Logo"
-    style={{
-      width: sidebarOpen ? 80 : 40,
-      height: sidebarOpen ? 80 : 40,
-      borderRadius: "50%",        // مکمل گول
-      border: "3px solid #2563eb", // خوبصورت بلیو باؤنڈر
-      padding: 3,                  // باؤنڈر کے اندر تھوڑا space
-      objectFit: "cover",
-      transition: "0.3s",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.2)" // تھوڑا سا shadow
-    }}
-  />
-</div>
+        <div style={{ marginBottom: 25, textAlign: "center" }}>
+          <img
+            src="/abc.jpeg"
+            alt="Logo"
+            style={{
+              width: sidebarOpen ? 80 : 45,
+              height: sidebarOpen ? 80 : 45,
+              borderRadius: "50%",
+              border: "3px solid #2563eb",
+              padding: 3,
+              objectFit: "cover",
+              boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+              transition: "0.3s ease",
+            }}
+          />
+        </div>
 
-
-        {/* Nav Items */}
+        {/* Navigation */}
         <nav style={{ width: "100%" }}>
-          {navItems.map((item) => {
+          {navItems.map((item, index) => {
             const active = location.pathname === item.path;
+            const color = navColors[index % navColors.length];
             return (
               <Link
                 key={item.name}
@@ -78,28 +88,27 @@ const StudentLayout = () => {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  padding: 10,
+                  justifyContent: sidebarOpen ? "flex-start" : "center",
+                  gap: sidebarOpen ? 10 : 0,
+                  padding: "10px 12px",
                   marginBottom: 8,
                   borderRadius: 8,
                   textDecoration: "none",
                   fontWeight: 500,
+                  backgroundColor: active ? color : "transparent",
                   color: active ? "#fff" : darkMode ? "#d1d5db" : "#111827",
-                  backgroundColor: active ? "#2563eb" : "transparent",
-                  textAlign: sidebarOpen ? "left" : "center",
-                  gap: sidebarOpen ? 10 : 0,
+                  transition: "0.3s ease",
                 }}
               >
-                {/* Circular Icon */}
                 <span
                   style={{
-                    display: "flex",
+                    display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
                     width: 30,
                     height: 30,
                     borderRadius: "50%",
-                    border: "1px solid",
-                    borderColor: active ? "#fff" : darkMode ? "#d1d5db" : "#111827",
+                    border: `1px solid ${active ? "#fff" : color}`,
                     fontSize: 16,
                   }}
                 >
@@ -111,31 +120,48 @@ const StudentLayout = () => {
           })}
         </nav>
 
-        {/* Sidebar Toggle */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          style={{
-            marginTop: "auto",
-            padding: "5px 10px",
-            cursor: "pointer",
-            borderRadius: 6,
-            border: "none",
-            background: darkMode ? "#374151" : "#2563eb",
-            color: "#fff",
-          }}
-        >
-          {sidebarOpen ? "Collapse" : "Expand"}
-        </button>
+        {/* Sidebar Buttons */}
+        <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 6,
+              border: "none",
+              cursor: "pointer",
+              background: "#2563eb",
+              color: "#fff",
+              fontSize: 14,
+            }}
+          >
+            {sidebarOpen ? "Collapse" : "Expand"}
+          </button>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "6px 10px",
+              borderRadius: 6,
+              border: "none",
+              cursor: "pointer",
+              background: "#ef4444",
+              color: "#fff",
+              fontSize: 14,
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
       <div
         style={{
-          marginLeft: sidebarOpen ? 220 : 70,
+          marginLeft: sidebarOpen ? 230 : 75,
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          transition: "margin-left 0.3s",
+          transition: "margin-left 0.3s ease",
         }}
       >
         {/* Header */}
@@ -144,57 +170,42 @@ const StudentLayout = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            background: darkMode ? "#1f2937" : "#fff",
             padding: "10px 20px",
-            background: darkMode ? "#111827" : "#fff",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
             position: "sticky",
             top: 0,
-            zIndex: 100,
+            zIndex: 50,
           }}
         >
           <input
             type="text"
-            placeholder="Search courses, students, documents..."
+            placeholder="Search anything..."
             style={{
               flex: 1,
               padding: "8px 12px",
               borderRadius: 6,
               border: "1px solid #ddd",
-              marginRight: 20,
-              background: darkMode ? "#1f2937" : "#f9fafb",
+              marginRight: 15,
+              background: darkMode ? "#111827" : "#f9fafb",
               color: darkMode ? "#f9fafb" : "#111827",
-              borderColor: darkMode ? "#374151" : "#ddd",
             }}
           />
 
-          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              style={{
-                padding: "5px 10px",
-                borderRadius: 6,
-                border: "none",
-                cursor: "pointer",
-                background: darkMode ? "#2563eb" : "#111827",
-                color: "#fff",
-              }}
-            >
-              {darkMode ? "Light Mode" : "Dark Mode"}
-            </button>
-            <button
-              onClick={handleLogout}
-              style={{
-                padding: "5px 10px",
-                borderRadius: 6,
-                border: "none",
-                cursor: "pointer",
-                background: "#ef4444",
-                color: "#fff",
-              }}
-            >
-              Logout
-            </button>
-          </div>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            style={{
+              padding: "6px 12px",
+              borderRadius: 6,
+              border: "none",
+              cursor: "pointer",
+              background: darkMode ? "#2563eb" : "#111827",
+              color: "#fff",
+              fontSize: 14,
+            }}
+          >
+            {darkMode ? "Light Mode" : "Dark Mode"}
+          </button>
         </header>
 
         {/* Page Content */}
